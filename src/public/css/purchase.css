@@ -1,0 +1,108 @@
+.purchase-wrapper {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    gap: 40px;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+.purchase-left {
+    width: 60%;
+}
+
+.purchase-left .item-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.purchase-left h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.purchase-left p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.purchase-left h4 {
+    font-size: 18px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.purchase-left select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.shipping-info p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.shipping-info a {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: underline;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.purchase-right {
+    width: 35%;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    height: fit-content;
+}
+
+.purchase-right table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.purchase-right td {
+    padding: 10px 0;
+    font-size: 16px;
+}
+
+.purchase-right td:first-child {
+    color: #555;
+}
+
+.purchase-right td:last-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+.purchase-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #e04d4d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.purchase-btn:hover {
+    background-color: #e04d4d;
+}
