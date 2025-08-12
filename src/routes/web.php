@@ -16,7 +16,11 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
+/*--------------------勤怠---------------------*/
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ListController;
 
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,9 +32,6 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-
-Route::get('/', [AuthController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -68,4 +69,39 @@ Route::post('/register', [RegisterController::class, 'store']);
 
 Route::post('/stripe/create-checkout-session', [\App\Http\Controllers\StripeController::class, 'create']);
 
-Route::get('/', [ItemController::class, 'index']);
+
+/*--------------------勤怠---------------------*/
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
+    Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])->name('attendance.breakStart');
+    Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])->name('attendance.breakEnd');
+    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    // 勤怠一覧
+    Route::get('/attendance/list', [ListController::class, 'index'])->name('attendance.list');
+
+});
+
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('admin.attendances.index');
+});
+
+Route::view('/admin/login', 'auth.admin-login')->name('admin.login');
+
+Route::get('/attendance/detail/{date}', [AttendanceController::class, 'detail'])
+    ->name('attendance.detail');
+
+Route::put('/attendance/{date}/update', [AttendanceController::class, 'update'])->name('attendance.update');
+
+Route::get('/stamp_correction_request/list', [AttendanceController::class, 'pendingList'])->name('stamp_correction_request.list');
+
+
+
+
+
+
+
+

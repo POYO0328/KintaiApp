@@ -17,7 +17,6 @@ class RegisterController extends Controller
         // ログイン処理
         Auth::login($user);
 
-        // 登録後に /mypage/profile にリダイレクト
-        return redirect('/mypage/profile');
+        return redirect(RouteServiceProvider::HOME);
     }
 }

@@ -30,37 +30,43 @@ class FortifyServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
+    {Fortify::ignoreRoutes();
         Fortify::createUsersUsing(CreateNewUser::class);
 
         Fortify::registerView(function () {
             return view('auth.register');
         });
 
+        // Fortify::loginView(function () {
+        //     return view('auth.login');
+        // });
         Fortify::loginView(function () {
-            return view('auth.login');
+        // URLが /admin/login のときだけ admin用ログインビューを返す
+        return request()->is('admin/login')
+            ? view('auth.admin-login') // 管理者用のビュー
+            : view('auth.login');      // 通常のログインビュー
         });
 
-        RateLimiter::for('login', function (Request $request) {
-            $email = (string) $request->email;
+        // RateLimiter::for('login', function (Request $request) {
+        //     $email = (string) $request->email;
 
-            return Limit::perMinute(10)->by($email . $request->ip());
-        });
+        //     return Limit::perMinute(10)->by($email . $request->ip());
+        // });
 
-        Fortify::authenticateUsing(function (Request $request) {
-    $user = Auth::attempt([
-        'email' => $request->email,
-        'password' => $request->password,
-    ]);
+        // Fortify::authenticateUsing(function (Request $request) {
+        //     $user = Auth::attempt([
+        //         'email' => $request->email,
+        //         'password' => $request->password,
+        //     ]);
 
-    if (! $user) {
-        return null;
-    }
+        //     if (! $user) {
+        //         return null;
+        //     }
 
-    $user = Auth::user();
+        //     $user = Auth::user();
 
-    return $user;
-});
+        //     return $user;
+        // });
 
     }
 }

@@ -22,6 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('postal_code', 10)->nullable();
             $table->string('address', 255)->nullable();
             $table->string('building', 255)->nullable();
+            $table->boolean('is_admin')->default(false);
             $table->timestamps(); // created_at / updated_at
         });
     }

@@ -5,38 +5,115 @@
 @endsection
 
 @section('content')
-<div class="attendance__alert">
-  {{-- メッセージ機能 --}}
-</div>
+<div class="attendance__container">
 
-@php
-    $keyword = request('keyword');
-    $mylistUrl = $keyword ? url('/?page=mylist&keyword=' . urlencode($keyword)) : url('/?page=mylist');
-@endphp
+    {{-- 勤怠状態表示 --}}
+    <div class="attendance__status">
+        @if ($attendance_status === 0)
+            勤 務 外
+        @elseif ($attendance_status === 1)
+            出 勤 中
+        @elseif ($attendance_status === 2)
+            休 憩 中
+        @elseif ($attendance_status === 3)
+            休 憩 終 了（出勤中）
+        @elseif ($attendance_status === 4)
+            退 勤 済 み
+        @else
+            状 態 不 明
+        @endif
+    </div>
 
-<div class="top__nav">
-  <a href="{{ url('/') }}" class="top__nav-link {{ request('page') !== 'mylist' ? 'active' : '' }}">おすすめ</a>
-  <a href="{{ $mylistUrl }}" class="top__nav-link {{ request('page') === 'mylist' ? 'active' : '' }}">マイリスト</a>
-</div>
+    <div id="datetime" class="text-lg font-bold" style="font-size:1.2em; margin-bottom:15px;">
+      <!-- リアルタイムで日付・曜日・時間を表示 -->
+    </div>
 
-<hr style="border-color: #ccc; margin: 10px 0;">
+    {{-- リアルタイム時計表示 --}}
+    <div id="current-time" style="font-weight:bold; font-size:2em; margin-bottom:40px;">
+      {{ now()->format('H:i:s') }}
+    </div>
 
-<div class="product__list">
-  @forelse ($items as $item)
-    <div class="product__item">
-      <a href="{{ url('item/' . $item->id) }}">
-        <div class="item-image-wrapper">
-          <img src="{{ asset(ltrim($item->image_path, '/')) }}" alt="{{ $item->item_name }}" class="product__image">
-          @if($item->is_sold)
-            <div class="sold-triangle"></div>
-            <div class="sold-text">SOLD</div>
-          @endif
+    {{-- メッセージ表示 --}}
+    @if(session('message'))
+        <div class="alert alert-success">
+            {{ session('message') }}
         </div>
-      </a>
-    <div class="product__name">{{ $item->item_name }}</div>
-  </div>
-  @empty
-    <p>該当する商品が見つかりませんでした。</p>
-  @endforelse
+    @endif
+
+    {{-- 出退勤ボタン --}}
+    <div class="attendance__buttons">
+        @if ($attendance_status === 0)
+            {{-- 出勤前 --}}
+            <form method="POST" action="{{ route('attendance.clockIn') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="start_buttons">出勤</button>
+            </form>
+        @elseif ($attendance_status === 1)
+            {{-- 出勤後・休憩前 --}}
+            <form method="POST" action="{{ route('attendance.breakStart') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="break_start_buttons">休憩開始</button>
+            </form>
+            <form method="POST" action="{{ route('attendance.clockOut') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="end_buttons">退勤</button>
+            </form>
+        @elseif ($attendance_status === 2)
+            {{-- 休憩中 --}}
+            <form method="POST" action="{{ route('attendance.breakEnd') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="break_end_buttons">休憩終了</button>
+            </form>
+        @elseif ($attendance_status === 3)
+            {{-- 休憩終了後 --}}
+            <form method="POST" action="{{ route('attendance.breakStart') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="break_start_buttons">休憩開始</button>
+            </form>
+            <form method="POST" action="{{ route('attendance.clockOut') }}" style="display:inline-block;">
+                @csrf
+                <button type="submit" class="end_buttons">退勤</button>
+            </form>
+        @elseif ($attendance_status === 4)
+            {{-- 勤務終了 --}}
+            <p class="mt-3">お疲れ様でした。
+            </p>
+        @endif
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleTimeString();
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+});
+</script>
+
+<script>
+  function updateDateTime() {
+    const now = new Date();
+
+    const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const day = daysOfWeek[now.getDay()];
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const dateTimeString = `${year}年${month}月${date}日(${day})`;
+    document.getElementById('datetime').textContent = dateTimeString;
+  }
+
+  setInterval(updateDateTime, 1000);
+  updateDateTime(); // 初期表示
+</script>
+
+@endpush

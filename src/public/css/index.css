@@ -1,115 +1,60 @@
-.attendance__alert--success {
-    padding: 10px 30px;
-    border-color: #badbcc;
-    background-color: #d1e7dd;
-    color: #0f5132;
+body {
+    background-color: #f0f0f0; /* 薄いグレー */
 }
 
-.attendance__alert--danger {
-    padding: 10px 0;
-    border-color: #f5c2c7;
-    background-color: #f8d7da;
-    color: #842029;
-}
-
-.attendance__alert--danger ul {
-    margin: 0;
-}
-
-.attendance__panel {
-    margin: 0 auto;
-    width: 70%;
-}
-
-.attendance__button {
-    width: 100%;
+.attendance__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;        /* 水平方向中央 */
+    justify-content: center;    /* 垂直方向中央 */
+    height: 90vh;              /* 画面全体を使う */
+    background-color: #f3f3f3;  /* 背景グレー */
     text-align: center;
+    padding: 20px;
 }
 
-.attendance__button-submit {
-    padding: 5px;
-    width: 30%;
-    height: 50px;
+.attendance__status {
+    margin-bottom: 10px; 
+    font-weight: bold;
+    padding: 6px 24px;               /* 内側余白 */
+    background-color:rgb(203, 202, 202);        /* 薄いグレー背景 */
+    color: #444;                      /* 濃いグレー文字 */
+    text-align: center;               /* 中央揃え */
+    border-radius: 30px;              /* 丸み（左右丸） */
+    display: inline-block;            /* コンテンツ幅に合わせて中央配置 */
+    font-size: 13px;
+}
+
+.attendance__buttons form {
+    margin: 0 20px 0 20px;          /* ボタンの間隔 */
+}
+
+.start_buttons,
+.end_buttons {
+    width: 100px;
+    font-weight: bold;
+    padding: 8px 20px;
     border: none;
-    border-radius: 3px;
-    background: #000;
-    color: #fff;
+    background-color: #222;
+    border-radius: 10px;
     cursor: pointer;
-}
-
-.attendance__content {
-    margin: 0 auto;
-    padding: 30px 15px;
-    max-width: 1230px;
-}
-
-.attendance-table {
-    margin: 30px auto;
-    width: 70%;
-    text-align: center;
-}
-
-.attendance-table__inner {
-    width: 100%;
-}
-
-.attendance-table__row {
-    border-bottom: 1px solid #ddd;
-}
-
-.attendance-table__header {
-    padding: 12px;
-    width: 20%;
-    font-weight: bold;
-}
-
-.attendance-table__item {
-    padding: 12px;
-    width: 20%;
-}
-
-.product__image {
-  width: 300px;  /* または max-width: 100%; にしてもOK */
-  height: auto;  /* アスペクト比を保ったまま縮小 */
-  object-fit: cover; /* 必要に応じて切り取り調整 */
-}
-
-.product__list {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.product__item {
-  width: 300px; /* 商品1個の幅を固定（調整可） */
-  text-align: left;
-  margin-left: 40px;
-  margin-bottom: 10px;
-}
-
-.item-image-wrapper {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .sold-triangle {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-top: 60px solid red;
-    border-right: 60px solid transparent;
-    z-index: 1;
-  }
-  
-  .sold-text {
-    position: absolute;
-    top: 5px;
-    left: 5px;
+    transition: background-color 0.3s ease;
     color: white;
-    font-size: 12px;
+}
+
+.break_start_buttons,
+.break_end_buttons{
+    width: 100px;
     font-weight: bold;
-    transform: rotate(-45deg);
-    z-index: 2;
-  }
-  
+    padding: 10px 20px;
+    border: none;
+    color: #222;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: white;
+}
+
+.attendance__buttons button:hover {
+    color: #888;  
+}

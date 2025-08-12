@@ -14,6 +14,7 @@ class UsersTableSeeder extends Seeder
             [
                 'name' => '山田 太郎',
                 'email' => 'yamada@example.com',
+                'is_admin' => 1,
             ],
             [
                 'name' => '佐藤 花子',
@@ -38,6 +39,7 @@ class UsersTableSeeder extends Seeder
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => Hash::make('password'), // 全員パスワードは 'password'
+                'is_admin' => $user['is_admin'] ?? 0,
             ]);
         }
     }
