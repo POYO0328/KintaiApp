@@ -37,36 +37,16 @@ class FortifyServiceProvider extends ServiceProvider
             return view('auth.register');
         });
 
-        // Fortify::loginView(function () {
-        //     return view('auth.login');
-        // });
         Fortify::loginView(function () {
         // URLが /admin/login のときだけ admin用ログインビューを返す
         return request()->is('admin/login')
             ? view('auth.admin-login') // 管理者用のビュー
             : view('auth.login');      // 通常のログインビュー
         });
-
-        // RateLimiter::for('login', function (Request $request) {
-        //     $email = (string) $request->email;
-
-        //     return Limit::perMinute(10)->by($email . $request->ip());
-        // });
-
-        // Fortify::authenticateUsing(function (Request $request) {
-        //     $user = Auth::attempt([
-        //         'email' => $request->email,
-        //         'password' => $request->password,
-        //     ]);
-
-        //     if (! $user) {
-        //         return null;
-        //     }
-
-        //     $user = Auth::user();
-
-        //     return $user;
-        // });
+    
+        Fortify::verifyEmailView(function () {
+            return view('auth.verify'); 
+        });
 
     }
 }

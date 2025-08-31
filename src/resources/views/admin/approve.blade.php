@@ -1,4 +1,4 @@
-@extends(Auth::user()->is_admin ? 'layouts.admin' : 'layouts.app')
+@extends('layouts.admin')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/detail.css') }}">
@@ -6,23 +6,23 @@
 
 @section('content')
 <div class="container">
-    <h1>勤怠詳細</h1>
+    <h1>申請承認画面</h1>
 
-    <form action="{{ route('attendance.update', $date) }}" method="POST">
+    <form action="{{ route('admin.attendance.approveUpdate', $attendanceCorrection->id) }}" method="POST">
         <div class="max-w-2xl bg-white p-6 rounded-lg shadow">
             @csrf
             @method('PUT')
 
-            <!-- 名前 -->
+            <!-- ユーザー名 -->
             <div class="mb-4 flex">
                 <label class="subtitle">名前</label>
-                <div  class="ml-180 font-bold">{{ Auth::user()->name }}</div>
+                <div class="ml-180 font-bold">{{ $attendanceCorrection->user->name }}</div>
             </div>
 
             <!-- 日付 -->
             <div class="mb-4 flex">
                 <label class="subtitle">日付</label>
-                <div  class="ml-180 font-bold">{{ \Carbon\Carbon::parse($date)->format('Y年n月j日') }}</div>
+                <div class="ml-180 font-bold">{{ \Carbon\Carbon::parse($attendanceCorrection->work_date)->format('Y年n月j日') }}</div>
             </div>
 
             <!-- 出勤・退勤 -->
@@ -52,17 +52,10 @@
             </div>
         </div>
 
-            <!-- 修正ボタン -->
-            @if (isset($revision) && $revision->status === 'pending')
-                <p class="text-red-600 mb-4">*承認待ちのため、修正できません</p>
-            @else
-                <div class="button-area">
-                    <button type="submit" class="fix">
-                        修正
-                    </button>
-                </div>
-            @endif
-
+        <!-- 承認・却下ボタン -->
+        <div class="button-area mt-4">
+            <button type="submit" name="action" value="approve" class="approve">承認</button>
+        </div>
     </form>
 </div>
 @endsection

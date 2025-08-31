@@ -17,13 +17,10 @@ class CreateUsersTable extends Migration
             $table->id(); // PK
             $table->string('name', 50);
             $table->string('email', 100)->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255);
-            $table->string('profile_image_path', 255)->nullable();
-            $table->string('postal_code', 10)->nullable();
-            $table->string('address', 255)->nullable();
-            $table->string('building', 255)->nullable();
             $table->boolean('is_admin')->default(false);
-            $table->timestamps(); // created_at / updated_at
+            $table->timestamps();
         });
     }
 
@@ -34,8 +31,8 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
+        Schema::disableForeignKeyConstraints();
         Schema::dropIfExists('users');
-        Schema::disableForeignKeyConstraints(); // 追加
-    Schema::enableForeignKeyConstraints(); // 追加
+        Schema::enableForeignKeyConstraints();
     }
 }

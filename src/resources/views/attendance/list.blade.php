@@ -2,17 +2,17 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+<link rel="stylesheet" href="{{ asset('css/list.css') }}">
 @endsection
 
 @section('content')
 <div class="container">
     <h1>勤怠一覧</h1>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex">
         <a href="{{ route('attendance.list', ['month' => $currentMonth->copy()->subMonth()->format('Y-m')]) }}">←前月</a>
 
         <div>
-            カレンダー →
             <input type="month" value="{{ $currentMonth->format('Y-m') }}"
                 onchange="location.href='{{ route('attendance.list') }}?month='+this.value">
         </div>
@@ -41,8 +41,6 @@
                     <td>{{ $date->format('m/d') }} ({{ ['日','月','火','水','木','金','土'][$date->dayOfWeek] }})</td>
                     <td>{{ $att && $att->clock_in ? $att->clock_in->format('H:i') : '' }}</td>
                     <td>{{ $att && $att->clock_out ? $att->clock_out->format('H:i') : '' }}</td>
-                    {{--<td>{{ $att ? $att->clock_in->format('H:i:s') : '' }}</td>--}}
-                    {{--<td>{{ $att ? $att->clock_out ? $att->clock_out->format('H:i:s') : '' : '' }}</td>--}}
                     <td>
                         @if ($att && isset($breakSeconds[$att->id]))
                             @php
@@ -72,13 +70,12 @@
                             @endphp
                         @endif
                     </td>
-                    <td>
                         <td>
                             <a href="{{ route('attendance.detail', $date) }}" class="btn btn-sm btn-primary">
                                 詳細
                             </a>
                         </td>
-                    </td>
+
 
                 </tr>
             @endforeach

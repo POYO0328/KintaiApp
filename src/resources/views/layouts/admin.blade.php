@@ -16,7 +16,7 @@
     <header class="header">
       <div class="header__inner">
         <div class="header-utilities">
-          <a class="header__logo" href="/attendance">
+          <a class="header__logo" href="/admin/attendances">
             <img src="/images/logo.svg" alt="COACHTECH">
           </a>
           <nav>
@@ -24,15 +24,14 @@
               {{-- ログイン状態で切り替え --}}
               @if (Auth::check())
               <li class="header-nav__item">
-                <a class="header-nav__link" href="/mypage">マイページ</a>
-              </li>
-              <li class="header-nav__item">
                 <a class="header-nav__link" href="/admin/attendances">勤怠一覧</a>
               </li>
+
               <li class="header-nav__item">
-                <form class="form" action="/sell" method="get">
-                  <button class="header-nav__button header-nav__button--sell">出品</button>
-                </form>
+                <a class="header-nav__link" href="/admin/staff/list">スタッフ一覧</a>
+              </li>
+              <li class="header-nav__item">
+                <a class="header-nav__link" href="/stamp_correction_request/list">申請一覧</a>
               </li>
               <li class="header-nav__item">
                 <form method="POST" action="{{ route('logout') }}">

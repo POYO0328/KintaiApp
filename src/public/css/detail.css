@@ -1,0 +1,158 @@
+/* ============================
+   勤怠詳細ページ 専用CSS
+   file: public/css/detail.css
+   ============================ */
+
+body {
+    background-color: #f1f0f4;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #222;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 10px 20px 30px;
+    background: #f1f0f4;
+    /* 背景に溶け込む */
+}
+
+.container h1 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-left: 6px solid #000;
+    padding-left: 10px;
+}
+
+/* 外枠カード */
+.max-w-2xl {
+    background: #fff;
+    border-radius: 10px;
+    padding: 24px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    margin: 40px auto;
+}
+
+/* タイトル */
+.max-w-2xl h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-left: 6px solid #000;
+    padding-left: 10px;
+}
+
+.subtitle {
+    color:#777777;
+}
+
+/* ラベル＋入力の横並び */
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+/* ラベル */
+.flex label {
+    width: 90px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 50px;
+}
+
+/* テキスト部分 */
+.flex div {
+    font-size: 14px;
+    color: #222;
+}
+
+/* 入力欄 */
+input[type="time"],
+textarea {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+    font-weight: bold;
+}
+
+.ml-180 {
+    margin: 0 0 0 180px;
+}
+
+.font-bold{
+    font-weight: bold;
+}
+
+input[type="time"]:focus,
+textarea:focus {
+    border-color: #999;
+    background-color: #fff;
+}
+
+/* テキストエリア */
+textarea {
+    width: 100%;
+    resize: none;
+    margin: 0 180px;
+    height: 60px;
+    width: 300px;
+    font-weight: bold;
+}
+
+/* 間の「〜」 */
+.mx-2 {
+    margin: 0 8px;
+    color: #555;
+    font-weight: bold;
+}
+
+/* フォーム行 */
+.mb-4 {
+    margin-bottom: 18px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 14px;
+}
+
+/* 備考だけは区切りなし */
+.mb-4:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* 修正ボタン */
+.fix {
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 26px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+/* 承認ボタン */
+.approve {
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 26px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.button-area {
+    text-align: right;
+}
+
+button:hover {
+    background: #333;
+}

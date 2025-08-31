@@ -21,17 +21,8 @@
           </a>
           <nav>
             <ul class="header-nav">
-              <li class="header-serch">
-                <form action="/attendance" method="GET" class="header-search-form">
-                  <input type="text" name="keyword" class="header-search-input" placeholder="なにをお探しですか？" value="{{ request('keyword') }}">
-                  <button type="submit" class="header-search-button">🔍</button>
-                </form>
-              </li>
               {{-- ログイン状態で切り替え --}}
               @if (Auth::check())
-              <li class="header-nav__item">
-                <a class="header-nav__link" href="/mypage">マイページ</a>
-              </li>
               <li class="header-nav__item">
                 <a class="header-nav__link" href="/attendance">勤怠</a>
               </li>
@@ -39,12 +30,7 @@
                 <a class="header-nav__link" href="/attendance/list">勤怠一覧</a>
               </li>
               <li class="header-nav__item">
-                <a class="header-nav__link" href="{{ url('/stamp_correction_request/list') }}">申請</a>
-              </li>
-              <li class="header-nav__item">
-                <form class="form" action="/sell" method="get">
-                  <button class="header-nav__button header-nav__button--sell">出品</button>
-                </form>
+                <a class="header-nav__link" href="{{ url('/stamp_correction_request/list') }}">申請一覧</a>
               </li>
               <li class="header-nav__item">
                 <form method="POST" action="{{ route('logout') }}">
@@ -53,17 +39,6 @@
                 </form>
               </li>
               @else
-              <li class="header-nav__item">
-                <a class="header-nav__link" href="{{ route('login') }}">マイページ</a>
-              </li>
-              <li class="header-nav__item">
-                <a class="header-nav__link" href="{{ route('login') }}">ログイン</a>
-              </li>
-              <li class="header-nav__item">
-                <a class="header-nav__link" href="{{ route('login') }}">
-                  <button class="header-nav__button header-nav__button--sell">出品</button>
-                </a>
-              </li>
             @endif
             </ul>
           </nav>
