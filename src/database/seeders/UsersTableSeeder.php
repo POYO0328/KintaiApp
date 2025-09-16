@@ -40,6 +40,7 @@ class UsersTableSeeder extends Seeder
                 'email' => $user['email'],
                 'password' => Hash::make('password'), // 全員パスワードは 'password'
                 'is_admin' => $user['is_admin'] ?? 0,
+                'email_verified_at' => $user['email_verified_at'] ?? now(),
             ]);
         }
     }

@@ -9,7 +9,7 @@
   <div class="register-form__heading">
     <h2>会員登録</h2>
   </div>
-  <form class="form" action="/register" method="post">
+  <form class="form" action="/register" method="post" novalidate>
     @csrf
     <div class="form__group">
       <div class="form__group-title">
@@ -17,7 +17,7 @@
       </div>
       <div class="form__group-content">
         <div class="form__input--text">
-          <input type="text" name="name" value="{{ old('name') }}" />
+          <input type="text" name="name" value="{{ old('name') }}" maxlength="50" />
         </div>
         <div class="form__error">
           @error('name')
@@ -32,7 +32,7 @@
       </div>
       <div class="form__group-content">
         <div class="form__input--text">
-          <input type="email" name="email" value="{{ old('email') }}" />
+          <input type="email" name="email" value="{{ old('email') }}" maxlength="100"/>
         </div>
         <div class="form__error">
           @error('email')
@@ -47,7 +47,7 @@
       </div>
       <div class="form__group-content">
         <div class="form__input--text">
-          <input type="password" name="password" />
+          <input type="password" name="password" maxlength="50"/>
         </div>
         <div class="form__error">
           @error('password')
@@ -62,7 +62,7 @@
       </div>
       <div class="form__group-content">
         <div class="form__input--text">
-          <input type="password" name="password_confirmation" />
+          <input type="password" name="password_confirmation" maxlength="50" />
         </div>
       </div>
     </div>

@@ -13,8 +13,10 @@
         <a href="{{ route('admin.attendances.index', ['date' => $currentDate->copy()->subDay()->format('Y-m-d')]) }}">←前日</a>
 
         <div>
-            <input type="date" value="{{ $currentDate->format('Y-m-d') }}"
-                onchange="location.href='{{ route('admin.attendances.index') }}?date='+this.value">
+            <input type="date" 
+                value="{{ $currentDate->format('Y-m-d') }}"
+                onchange="location.href='{{ route('admin.attendances.index') }}?date='+this.value"
+                class="date-input">
         </div>
 
         <a href="{{ route('admin.attendances.index', ['date' => $currentDate->copy()->addDay()->format('Y-m-d')]) }}">翌日→</a>
@@ -45,11 +47,19 @@
                     <td>{{ $user->name }}</td>
                     <td>{{ $attendance && $attendance->clock_in ? $attendance->clock_in->format('H:i') : '' }}</td>
                     <td>{{ $attendance && $attendance->clock_out ? $attendance->clock_out->format('H:i') : '' }}</td>
-                    <td>{{ gmdate('H:i', $break) }}</td>
+                    <td>{{ $attendance && $break > 0 ? gmdate('H:i', $break) : '' }}</td>
                     <td>{{ $workDuration > 0 ? gmdate('H:i', $workDuration) : '' }}</td>
                     <td>
-                        @if($attendance)
-                            <a href="{{ route('attendance.detail', ['date' => $currentDate->format('Y-m-d')]) }}">詳細</a>
+                        @if ($currentDate->isFuture())
+                            {{-- 未来の日付なら表示しない --}}
+                            -
+                        @else
+                            <a href="{{ route('attendance.detail', [
+                                'date' => $currentDate->format('Y-m-d'),
+                                'user_id' => $user->id
+                            ]) }}">
+                                詳細
+                            </a>
                         @endif
                     </td>
                 </tr>

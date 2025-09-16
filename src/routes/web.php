@@ -10,8 +10,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ListController;
 use Illuminate\Support\Facades\Auth;
-
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -24,54 +25,20 @@ use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController
 |
 */
 
-// Route::middleware('auth')->group(function () {
-//     Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-
-//     Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-//     Route::get('/mypage', [MypageController::class, 'index'])->name('mypage.index');
-
-//     Route::get('/sell', [SellController::class, 'showForm'])->name('sell.form');
-
-//     Route::get('/sell', [SellController::class, 'showForm'])->name('sell.form');
-
-//     Route::get('/purchase/address/{item_id}', [PurchaseAddressController::class, 'showForm'])->name('purchase.address');
-
-//     Route::post('/purchase/address/{item_id}', [PurchaseAddressController::class, 'submitAddress'])->name('purchase.address.submit');
-
-//     // 保存処理用ルート
-//     Route::post('/sell', [ItemController::class, 'store'])->middleware('auth')->name('item.store');
-
-//     Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show');
-// });
-
-// Route::get('/item/{id}', [ItemController::class, 'show'])->name('item.show');
-
-// Route::post('/purchase/complete/{item_id}', [PurchaseController::class, 'complete'])->name('purchase.complete');
-
-// //コメント部分
-// Route::post('/items/{item}/comments', [CommentController::class, 'store'])->name('comment.store');
-
-// Route::post('/like-toggle/{item_id}', [LikeController::class, 'toggle'])->name('like.toggle');
-
-// Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
 Route::post('/register', [RegisterController::class, 'store']);
 
-// Route::post('/stripe/create-checkout-session', [\App\Http\Controllers\StripeController::class, 'create']);
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance');
+});
 
 /*--------------------勤怠---------------------*/
-
-Route::get('/attendance', [AttendanceController::class, 'index'])
-    ->middleware(['auth', 'verified']);
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
     Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])->name('attendance.breakStart');
     Route::post('/attendance/break-end', [AttendanceController::class, 'breakEnd'])->name('attendance.breakEnd');
     Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
-    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     // 勤怠一覧
     Route::get('/attendance/list', [ListController::class, 'index'])->name('attendance.list');
 
@@ -79,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::prefix('admin')->middleware('auth')->group(function () {
-    Route::get('/attendances', [AttendanceController::class, 'adminList'])->name('admin.attendances.index');
+    Route::get('/attendance/list', [AttendanceController::class, 'adminList'])->name('admin.attendances.index');
 });
 
 
@@ -94,7 +61,7 @@ Route::get('/stamp_correction_request/approve/{attendanceCorrection}',
     [AttendanceController::class, 'approve']
 )->name('admin.attendance.approve');
 
-// 管理者用 承認/却下処理
+// 管理者用 承認処理
 Route::put('/stamp_correction_request/approve/{attendanceCorrection}',
     [AttendanceController::class, 'approveUpdate']
 )->name('admin.attendance.approveUpdate');
@@ -109,7 +76,9 @@ Route::get('/admin/staff/list', [\App\Http\Controllers\AttendanceController::cla
 Route::get('/admin/attendance/staff/{id}', [AttendanceController::class, 'staffMonthly'])
     ->name('admin.staff.attendance');
 
+//CSV出力
+Route::get('/admin/staff/{id}/attendance/csv', [AttendanceController::class, 'exportCsv'])
+    ->name('admin.staff.attendance.csv');
 
-
-
-
+// Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+//     ->name('logout');

@@ -28,33 +28,56 @@
             <!-- 出勤・退勤 -->
             <div class="mb-4 flex items-center">
                 <label class="subtitle">出勤・退勤</label>
-                <input type="time" class="ml-180" name="clock_in" value="{{ $attendance->clock_in ? \Carbon\Carbon::parse($attendance->clock_in)->format('H:i') : '' }}" class="border rounded px-2 py-1">
+                <input type="time" class="ml-180" 
+                       value="{{ $attendanceCorrection->clock_in ? \Carbon\Carbon::parse($attendanceCorrection->clock_in)->format('H:i') : '' }}" 
+                       disabled>
                 <span class="mx-2">〜</span>
-                <input type="time" name="clock_out" value="{{ $attendance->clock_out ? \Carbon\Carbon::parse($attendance->clock_out)->format('H:i') : '' }}" class="border rounded px-2 py-1">
+                <input type="time" 
+                       value="{{ $attendanceCorrection->clock_out ? \Carbon\Carbon::parse($attendanceCorrection->clock_out)->format('H:i') : '' }}" 
+                       disabled>
             </div>
 
             @php
-                $break = $breaks->first(); // 最初の休憩データ（なければnull）
+                $break = $attendanceCorrection->breaks->first(); // 修正申請側の休憩データ
             @endphp
 
-            <!-- 休憩 -->
-            <div class="mb-4 flex items-center">
-                <label class="subtitle">休憩</label>
-                <input type="time" class="ml-180" name="break_start" value="{{ $break ? \Carbon\Carbon::parse($break->break_start)->format('H:i') : '' }}" class="border rounded px-2 py-1">
-                <span class="mx-2">〜</span>
-                <input type="time" name="break_end" value="{{ $break ? \Carbon\Carbon::parse($break->break_end)->format('H:i') : '' }}" class="border rounded px-2 py-1">
-            </div>
+            @php
+                $breaks = $attendanceCorrection->breaks ?? collect([]);
+                $count = $breaks->count(); // 既存の件数
+            @endphp
+
+            @for ($i = 0; $i < $count; $i++)
+                <div class="flex items-center mb-4">
+                    <label class="subtitle">休憩{{ $i + 1 }}</label>
+                    <input type="time" class="ml-180 border rounded px-2 py-1"
+                        value="{{ isset($breaks[$i]) ? \Carbon\Carbon::parse($breaks[$i]->break_start)->format('H:i') : '' }}"
+                        disabled>
+                    <span class="mx-2">〜</span>
+                    <input type="time" class="border rounded px-2 py-1"
+                        value="{{ isset($breaks[$i]) ? \Carbon\Carbon::parse($breaks[$i]->break_end)->format('H:i') : '' }}"
+                        disabled>
+                </div>
+            @endfor
+
 
             <!-- 備考 -->
             <div class="flex items-center">
                 <label class="subtitle">備考</label>
-                <textarea name="reason" rows="2" class="border rounded px-2 py-1 w-full">{{ $attendance->reason ?? '' }}</textarea>
+                <textarea rows="2" class="border rounded px-2 py-1 w-full" disabled>{{ $attendanceCorrection->reason ?? '' }}</textarea>
             </div>
         </div>
 
         <!-- 承認・却下ボタン -->
         <div class="button-area mt-4">
-            <button type="submit" name="action" value="approve" class="approve">承認</button>
+            @if ($attendanceCorrection->status === 'approved')
+                <button class="approve gray cursor-not-allowed" disabled>
+                    承認済み
+                </button>
+            @else
+                <button type="submit" name="action" value="approve" class="approve">
+                    承認
+                </button>
+            @endif
         </div>
     </form>
 </div>

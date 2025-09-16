@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use App\Models\BreakTime;
 use App\Models\AttendanceCorrection;
 use App\Models\User;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Http\Requests\AttendanceDetailRequest;
 
 class AttendanceController extends Controller
 {
@@ -69,34 +71,6 @@ class AttendanceController extends Controller
         return redirect()->back()->with('message', '休憩終了しました');
     }
 
-    // public function breakStart()
-    // {
-    //     $attendance = Attendance::where('user_id', Auth::id())
-    //         ->where('work_date', Carbon::today())
-    //         ->firstOrFail();
-
-    //     $attendance->update([
-    //         'break_start' => now(),
-    //         'attendance_status' => 2
-    //     ]);
-
-    //     return redirect()->back()->with('message', '休憩開始しました');
-    // }
-
-    // public function breakEnd()
-    // {
-    //     $attendance = Attendance::where('user_id', Auth::id())
-    //         ->where('work_date', Carbon::today())
-    //         ->firstOrFail();
-
-    //     $attendance->update([
-    //         'break_end' => now(),
-    //         'attendance_status' => 3
-    //     ]);
-
-    //     return redirect()->back()->with('message', '休憩終了しました');
-    // }
-
     public function clockOut()
     {
         $attendance = Attendance::where('user_id', Auth::id())
@@ -124,35 +98,49 @@ class AttendanceController extends Controller
         return view('index', compact('attendance_status'));
     }
 
-    public function detail($date)
+    public function detail(Request $request, $date)
     {
-        $userId = auth()->id();
+        $userId = $request->input('user_id') ?? auth()->id();
+        $user = User::find($userId);
+        $isAdmin = auth()->user()->is_admin;
 
-        // 修正申請があればそちらを優先
-        $editRequest = AttendanceCorrection::with('breaks')
+        // 本番勤怠
+        $attendanceData = Attendance::with('breaks')
             ->where('user_id', $userId)
             ->where('work_date', $date)
             ->first();
 
-        if ($editRequest) {
-            $attendance = $editRequest;
-            $revision = $editRequest; // 修正申請がある場合
-            $breaks = $editRequest->breaks;
+        if ($isAdmin) {
+            // 管理者は常に本番勤怠
+            $attendance = $attendanceData;
+            $revision = null;
+            $breaks = $attendance ? $attendance->breaks : collect();
         } else {
-            $attendance = Attendance::where('user_id', $userId)
+            // ユーザー用
+            $editRequest = AttendanceCorrection::with('breaks')
+                ->where('user_id', $userId)
                 ->where('work_date', $date)
                 ->first();
-            $revision = null; // 修正申請がない場合
 
-            if ($attendance) {
-                // 本番勤怠に紐づく休憩時間を取得
-                $breaks = $attendance->breaks;  // ここで Attendance モデルに breaks リレーションがある前提
+            if ($editRequest && $editRequest->status === 'approved' && $attendanceData) {
+                // 申請は承認済み → 本番優先
+                $attendance = $attendanceData;
+                $revision = $editRequest;
+                $breaks = $attendance->breaks;
+            } elseif ($editRequest) {
+                // 申請があれば申請優先
+                $attendance = $editRequest;
+                $revision = $editRequest;
+                $breaks = $editRequest->breaks;
             } else {
-                $breaks = collect(); // どちらもなければ空のコレクション
+                // 申請がなければ本番
+                $attendance = $attendanceData;
+                $revision = null;
+                $breaks = $attendance ? $attendance->breaks : collect();
             }
         }
 
-        // データがない場合は空のオブジェクトを作る
+        // データがない場合はダミー
         if (!$attendance) {
             $attendance = new \stdClass();
             $attendance->id = null;
@@ -163,97 +151,114 @@ class AttendanceController extends Controller
             $attendance->attendance_status = 0;
         }
 
-        return view('attendance.detail', compact('attendance', 'revision', 'date', 'breaks'));
+        return view('attendance.detail', compact('attendance', 'revision', 'date', 'breaks', 'user'));
     }
 
-    public function update(Request $request, $date)
+    public function update(AttendanceDetailRequest $request, $date)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $request->input('user_id', $user->id); // 管理者は他人のIDを受け取る想定
 
-        // バリデーション（必要に応じて拡張してください）
-        $validated = $request->validate([
-            'clock_in' => 'nullable|date_format:H:i',
-            'clock_out' => 'nullable|date_format:H:i',
-            'break_start' => 'nullable|date_format:H:i',
-            'break_end' => 'nullable|date_format:H:i',
-            'reason' => 'nullable|string|max:1000',
-        ]);
+        // バリデーション済みデータを取得
+        $validated = $request->validated();
 
         // 本番勤怠レコードを取得
         $attendance = Attendance::where('user_id', $userId)
             ->where('work_date', $date)
             ->first();
 
-        if (!$attendance) {
-            return redirect()->back()->withErrors(['msg' => '勤怠データが見つかりません。']);
-        }
+        if ($user->is_admin) {
+            // ========== 管理者：本番データを直接修正 ==========
+            if (!$attendance) {
+                // 本番勤怠がなければ新規作成
+                $attendance = Attendance::create([
+                    'user_id' => $userId,
+                    'work_date' => $date,
+                    'clock_in' => $validated['clock_in'] ? Carbon::parse($date.' '.$validated['clock_in']) : null,
+                    'clock_out' => $validated['clock_out'] ? Carbon::parse($date.' '.$validated['clock_out']) : null,
+                    'reason' => $validated['reason'] ?? null,
+                    'attendance_status' => 4,
+                ]);
+            } else {
+                // 既存レコードを更新
+                $attendance->clock_in = $validated['clock_in'] ? Carbon::parse($date.' '.$validated['clock_in']) : null;
+                $attendance->clock_out = $validated['clock_out'] ? Carbon::parse($date.' '.$validated['clock_out']) : null;
+                $attendance->reason = $validated['reason'] ?? null;
+                $attendance->attendance_status = 4;
+                $attendance->save();
+            }
 
-        // 既に修正申請があるかチェック
-        $correction = AttendanceCorrection::where('attendance_id', $attendance->id)->first();
+            // // 休憩処理
+            // if ($validated['break_start'] && $validated['break_end']) {
+            //     $attendance->breaks()->updateOrCreate(
+            //         ['attendance_id' => $attendance->id],
+            //         [
+            //             'break_start' => Carbon::parse($date.' '.$validated['break_start']),
+            //             'break_end'   => Carbon::parse($date.' '.$validated['break_end']),
+            //         ]
+            //     );
+            // }
+            // 休憩処理
+            $attendance->breaks()->delete(); // 一旦削除して再登録
+            if (!empty($validated['breaks'])) {
+                foreach ($validated['breaks'] as $break) {
+                    if (!empty($break['break_start']) && !empty($break['break_end'])) {
+                        $attendance->breaks()->create([
+                            'break_start' => Carbon::parse($date.' '.$break['break_start']),
+                            'break_end'   => Carbon::parse($date.' '.$break['break_end']),
+                        ]);
+                    }
+                }
+            }
 
-        if ($correction) {
-            // 更新
+            return redirect()->route('admin.attendances.index', ['date' => $date])
+                ->with('success', '勤怠を修正しました（管理者権限で即時反映）');
+
+        } else {
+            // ========== ユーザー：申請テーブルに保存 ==========
+            $attendanceId = $attendance?->id; // 本番勤怠がない場合は null
+            $correction = AttendanceCorrection::firstOrNew([
+                'attendance_id' => $attendanceId,
+                'user_id' => $user->id,
+                'work_date' => $date,
+            ]);
+
             $correction->clock_in = $validated['clock_in'] ?? null;
             $correction->clock_out = $validated['clock_out'] ?? null;
-            $correction->attendance_status = 0; // 状態は承認待ちにリセットなど
             $correction->status = 'pending';
             $correction->reason = $validated['reason'] ?? null;
             $correction->save();
 
-            // 休憩時間の更新もあればここで処理（下記参照）
-
-        } else {
-            // 新規作成
-            $correction = AttendanceCorrection::create([
-                'attendance_id' => $attendance->id,
-                'user_id' => $userId,
-                'work_date' => $date,
-                'clock_in' => $validated['clock_in'] ?? null,
-                'clock_out' => $validated['clock_out'] ?? null,
-                'attendance_status' => 0,
-                'status' => 'pending',
-                'reason' => $validated['reason'] ?? null,
-            ]);
-        }
-
-        // 例）休憩は1件のみ、既存レコードがあれば更新、なければ新規
-        $breakStart = $validated['break_start'] ?? null;
-        $breakEnd = $validated['break_end'] ?? null;
-
-        if ($breakStart && $breakEnd) {
-            $break = $correction->breaks()->first();
-
-            if ($break) {
-                $break->break_start = $breakStart;
-                $break->break_end = $breakEnd;
-                $break->save();
-            } else {
-                $correction->breaks()->create([
-                    'break_start' => $breakStart,
-                    'break_end' => $breakEnd,
-                ]);
+            // 休憩処理（Correction 側）
+            $correction->breaks()->delete();
+            if (!empty($validated['breaks'])) {
+                foreach ($validated['breaks'] as $break) {
+                    if (!empty($break['break_start']) && !empty($break['break_end'])) {
+                        $correction->breaks()->create([
+                            'break_start' => $break['break_start'],
+                            'break_end'   => $break['break_end'],
+                        ]);
+                    }
+                }
             }
-        }
 
-        return redirect()->route('attendance.detail', ['date' => $date])
-            ->with('success', '修正申請を送信しました。承認までお待ちください。');
+            return redirect()->route('attendance.detail', ['date' => $date])
+                ->with('success', '修正申請を送信しました。承認までお待ちください。');
+        }
     }
 
     public function pendingList()
     {
-        $query = AttendanceCorrection::with('user')
-            ->where('status', 'pending')
-            ->orderBy('work_date', 'desc');
+        $baseQuery = AttendanceCorrection::with('user');
 
         if (!auth()->user()->is_admin) {
-            // 一般ユーザーの場合 → 自分の申請だけ
-            $query->where('user_id', auth()->id());
+            $baseQuery->where('user_id', auth()->id());
         }
-        // 管理者の場合は where('user_id', …) を付けずに全件対象
 
-        $pendingRequests = $query->get();
+        $pendingRequests = (clone $baseQuery)->where('status', 'pending')->orderBy('work_date', 'desc')->get();
+        $approvedRequests = (clone $baseQuery)->where('status', 'approved')->orderBy('work_date', 'desc')->get();
 
-        return view('attendance.pending_list', compact('pendingRequests'));
+        return view('attendance.pending_list', compact('pendingRequests', 'approvedRequests'));
     }
 
     // 管理者用 一覧（全ユーザー日別勤怠）
@@ -292,9 +297,6 @@ class AttendanceController extends Controller
 
         return view('admin.attendances', compact('users', 'attendances', 'breakSeconds', 'currentDate'));
     }
-
-
-
 
     //スタッフ一覧
     public function staffList()
@@ -360,42 +362,96 @@ class AttendanceController extends Controller
         return view('admin.approve', compact('attendanceCorrection', 'attendance', 'breaks'));
     }
 
-    // 管理者による申請承認・却下
+    // 管理者による申請承認
     public function approveUpdate(Request $request, AttendanceCorrection $attendanceCorrection)
     {
-        $action = $request->input('action'); // approve or reject
-
-        if ($action === 'approve') {
-            // 本番の Attendance を更新
-            $attendance = $attendanceCorrection->attendance;
-            if ($attendance) {
-                $attendance->update([
-                    'clock_in'  => $attendanceCorrection->clock_in,
-                    'clock_out' => $attendanceCorrection->clock_out,
-                    'reason'    => $attendanceCorrection->reason,
-                ]);
-                // 休憩も上書きするならここで
-            }
-
-            $attendanceCorrection->status = 'approved';
-            $attendanceCorrection->save();
-
-            return redirect()->route('attendance.pending_list')
-                ->with('success', '申請を承認しました。');
+        // Attendance がなければ新規作成
+        $attendance = $attendanceCorrection->attendance;
+        if (!$attendance) {
+            $attendance = new Attendance([
+                'user_id'   => $attendanceCorrection->user_id,
+                'work_date' => $attendanceCorrection->work_date,
+            ]);
         }
 
-        if ($action === 'reject') {
-            $attendanceCorrection->status = 'rejected';
-            $attendanceCorrection->save();
+        // 本番の Attendance を更新
+        $attendance->clock_in = $attendanceCorrection->clock_in;
+        $attendance->clock_out = $attendanceCorrection->clock_out;
+        $attendance->reason = $attendanceCorrection->reason;
+        $attendance->attendance_status = 4; // 新規・更新ともに無条件で 4
+        $attendance->save();
 
-            return redirect()->route('attendance.pending_list')
-                ->with('success', '申請を却下しました。');
+        // 休憩を一旦削除して再登録
+        $attendance->breaks()->delete();
+        foreach ($attendanceCorrection->breaks as $correctionBreak) {
+            $attendance->breaks()->create([
+                'break_start' => $correctionBreak->break_start,
+                'break_end' => $correctionBreak->break_end,
+            ]);
         }
 
-        return redirect()->back()->withErrors(['msg' => '不正な操作です。']);
+        // 申請ステータス更新
+        $attendanceCorrection->status = 'approved';
+        $attendanceCorrection->save();
+
+        return back()->with('success', '申請を承認しました。');
     }
 
+    public function exportCsv($id, Request $request)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $user = User::findOrFail($id);
 
+        $attendances = Attendance::where('user_id', $id)
+            ->whereBetween('work_date', [
+                \Carbon\Carbon::parse($month)->startOfMonth(),
+                \Carbon\Carbon::parse($month)->endOfMonth()
+            ])
+            ->get();
 
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function() use ($attendances, $user, $month) {
+            $handle = fopen('php://output', 'w');
+
+            // ヘッダー行
+            fputcsv($handle, ['日付', '出勤', '退勤', '休憩時間', '実働時間']);
+
+            foreach ($attendances as $att) {
+                $clockIn  = $att->clock_in ? \Carbon\Carbon::parse($att->clock_in) : null;
+                $clockOut = $att->clock_out ? \Carbon\Carbon::parse($att->clock_out) : null;
+
+                // 休憩合計（分）
+                $breakMinutes = $att->breaks->sum(function($b) {
+                    return \Carbon\Carbon::parse($b->break_end)->diffInMinutes(\Carbon\Carbon::parse($b->break_start));
+                });
+
+                // 実働時間（分）
+                $workMinutes = 0;
+                if ($clockIn && $clockOut) {
+                    $workMinutes = $clockOut->diffInMinutes($clockIn) - $breakMinutes;
+                    $workMinutes = max(0, $workMinutes);
+                }
+
+                // 表示用 h:mm 形式
+                $breakStr = sprintf('%d:%02d', floor($breakMinutes / 60), $breakMinutes % 60);
+                $workStr  = $clockIn && $clockOut ? sprintf('%d:%02d', floor($workMinutes / 60), $workMinutes % 60) : '';
+
+                fputcsv($handle, [
+                    \Carbon\Carbon::parse($att->work_date)->format('Y-m-d'),
+                    $clockIn ? $clockIn->format('H:i') : '',
+                    $clockOut ? $clockOut->format('H:i') : '',
+                    $breakStr,
+                    $workStr,
+                ]);
+            }
+
+            fclose($handle);
+        });
+
+        $filename = "{$user->name}_{$month}_attendance.csv";
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', "attachment; filename={$filename}");
+
+        return $response;
+    }
 }
 

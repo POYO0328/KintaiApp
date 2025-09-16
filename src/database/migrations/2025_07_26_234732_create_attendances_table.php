@@ -14,6 +14,7 @@ class CreateAttendancesTable extends Migration
             $table->date('work_date'); // 勤務日（重複しない）
             $table->time('clock_in')->nullable(); // 出勤
             $table->time('clock_out')->nullable(); // 退勤
+            $table->text('reason')->nullable(); // 修正理由
             $table->unsignedTinyInteger('attendance_status')->default(0); // 状態管理
             $table->timestamps();
 

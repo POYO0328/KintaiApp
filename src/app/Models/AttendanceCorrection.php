@@ -17,7 +17,6 @@ class AttendanceCorrection extends Model
         'work_date',
         'clock_in',
         'clock_out',
-        'attendance_status',
         'status',
         'approved_by',
         'approved_at',

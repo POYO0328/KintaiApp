@@ -112,3 +112,37 @@ body {
     color: #007bff;
     text-decoration: underline;
 }
+
+/*申請画面*/
+.tab {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  color: #9ca3af; /* gray-400 */
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #374151; /* gray-700 */
+}
+
+.tab.active {
+  color: #000000; /* 黒 */
+  font-weight: bold;
+}
+
+.tab-container {
+　margin-top: 5px;
+  border-bottom: 2px solid #646565ff; /* gray-300くらいの薄い線 */
+}
+
+.mt-5 {
+    margin-top: 30px;
+}
+
+.date-input {
+    border: none;
+    outline: none;
+    font-weight: bold;
+    font-size: 16px;
+    background: transparent;
+}

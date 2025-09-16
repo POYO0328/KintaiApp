@@ -3,6 +3,7 @@
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 <link rel="stylesheet" href="{{ asset('css/list.css') }}">
+<link rel="stylesheet" href="{{ asset('css/detail.css') }}">
 @endsection
 
 @section('content')
@@ -14,7 +15,6 @@
         <a href="{{ route('admin.staff.attendance', ['id' => $user->id, 'month' => $currentMonth->copy()->subMonth()->format('Y-m')]) }}">←前月</a>
         
         <div>
-            カレンダー →
             <input type="month" value="{{ $currentMonth->format('Y-m') }}"
                 onchange="location.href='{{ route('admin.staff.attendance', ['id' => $user->id]) }}?month='+this.value">
         </div>
@@ -63,11 +63,25 @@
                     <td>{{ $break ? sprintf('%d:%02d', floor($break / 3600), floor(($break % 3600) / 60)) : '-' }}</td>
                     <td>{{ ($clockIn && $clockOut) ? sprintf('%d:%02d', $hours, $minutes) : '-' }}</td>
                     <td>
-                        <a href="{{ route('attendance.detail', ['date' => $date->format('Y-m-d')]) }}" class="btn btn-sm btn-primary">詳細</a>
+                        @if ($date->isFuture())
+                            -
+                        @else
+                            <a href="{{ route('attendance.detail', ['date' => $date->format('Y-m-d')]) }}" class="btn btn-sm btn-primary">
+                                詳細
+                            </a>
+                        @endif
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+    <div class="button-area">
+        <form action="{{ route('admin.staff.attendance.csv', ['id' => $user->id]) }}" method="GET">
+            <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m') }}">
+            <button type="submit" class="fix mt-5">
+                CSV出力
+            </button>
+        </form>
+    </div>
 </div>
 @endsection

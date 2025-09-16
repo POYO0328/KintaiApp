@@ -16,9 +16,9 @@
         @elseif ($attendance_status === 2)
             休 憩 中
         @elseif ($attendance_status === 3)
-            休 憩 終 了（出勤中）
+            休 憩 戻
         @elseif ($attendance_status === 4)
-            退 勤 済 み
+            退 勤 済 
         @else
             状 態 不 明
         @endif
@@ -33,13 +33,6 @@
       {{ now()->format('H:i:s') }}
     </div>
 
-    {{-- メッセージ表示 --}}
-    @if(session('message'))
-        <div class="alert alert-success">
-            {{ session('message') }}
-        </div>
-    @endif
-
     {{-- 出退勤ボタン --}}
     <div class="attendance__buttons">
         @if ($attendance_status === 0)
@@ -52,7 +45,7 @@
             {{-- 出勤後・休憩前 --}}
             <form method="POST" action="{{ route('attendance.breakStart') }}" style="display:inline-block;">
                 @csrf
-                <button type="submit" class="break_start_buttons">休憩開始</button>
+                <button type="submit" class="break_start_buttons">休憩入</button>
             </form>
             <form method="POST" action="{{ route('attendance.clockOut') }}" style="display:inline-block;">
                 @csrf
@@ -62,13 +55,13 @@
             {{-- 休憩中 --}}
             <form method="POST" action="{{ route('attendance.breakEnd') }}" style="display:inline-block;">
                 @csrf
-                <button type="submit" class="break_end_buttons">休憩終了</button>
+                <button type="submit" class="break_end_buttons">休憩戻</button>
             </form>
         @elseif ($attendance_status === 3)
             {{-- 休憩終了後 --}}
             <form method="POST" action="{{ route('attendance.breakStart') }}" style="display:inline-block;">
                 @csrf
-                <button type="submit" class="break_start_buttons">休憩開始</button>
+                <button type="submit" class="break_start_buttons">休憩入</button>
             </form>
             <form method="POST" action="{{ route('attendance.clockOut') }}" style="display:inline-block;">
                 @csrf

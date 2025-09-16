@@ -70,13 +70,15 @@
                             @endphp
                         @endif
                     </td>
-                        <td>
+                    <td>
+                        @if ($date->isFuture())
+                            -
+                        @else
                             <a href="{{ route('attendance.detail', $date) }}" class="btn btn-sm btn-primary">
-                                詳細
-                            </a>
-                        </td>
-
-
+                            詳細
+                        </a>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

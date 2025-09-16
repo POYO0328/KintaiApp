@@ -20,6 +20,7 @@ class Attendance extends Model
         'break_end',
         'clock_out',
         'attendance_status',
+        'reason',
     ];
 
     protected $casts = [
