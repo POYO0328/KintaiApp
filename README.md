@@ -68,12 +68,12 @@ MAIL_FROM_ADDRESSは任意のメールアドレスを入力してください。
 2. ログイン機能(一般ユーザー)　※対象外
 3. ログイン機能(管理者)　※対象外
 4. 日時取得機能　※Javascriptにて日時取得しており、テスト作成不可　
-5. ステータス確認機能　php artisan test --filter=
+5. ステータス確認機能　php artisan test --filter=StatusTest
 6. 出勤機能　php artisan test --filter=ClockInTest
 7. 休憩機能　php artisan test --filter=BreakTest
 8. 退勤機能　php artisan test --filter=ClockOutTest
-9. 勤怠一覧情報取得機能(一般ユーザー)　※対象外
-10. 勤怠詳細情報取得機能(一般ユーザー)　※対象外
+9. 勤怠一覧情報取得機能(一般ユーザー)　php artisan test --filter=UserListTest
+10. 勤怠詳細情報取得機能(一般ユーザー)　php artisan test --filter=UserDetailTest
 11. 勤怠詳細情報修正機能(一般ユーザー)　※対象外
 12. 勤怠一覧情報取得機能(管理者)　php artisan test --filter=AttendanceListTest
 13. 勤怠詳細情報取得・修正機能(管理者)　php artisan test --filter=AttendanceDetailTest
