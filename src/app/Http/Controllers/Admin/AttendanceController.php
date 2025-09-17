@@ -10,7 +10,7 @@ class AttendanceController extends Controller
 {
     public function index()
     {
-        // attendancesテーブルの全データ取得（例）
+        // attendancesテーブルの全データ取得
         $attendances = Attendance::all();
 
         // resources/views/admin/attendances.blade.php に渡す

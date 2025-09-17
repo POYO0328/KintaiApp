@@ -14,12 +14,12 @@ class AttendanceCorrectionFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'attendance_id' => null, // 必要に応じて Attendance ID を設定
+            'attendance_id' => null, 
             'work_date' => $this->faker->date(),
             'clock_in' => $this->faker->time(),
             'clock_out' => $this->faker->time(),
             'reason' => $this->faker->sentence(),
-            'status' => 'pending', // デフォルトは承認待ち
+            'status' => 'pending', 
         ];
     }
 }

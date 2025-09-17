@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-
-/*--------------------勤怠---------------------*/
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ListController;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +29,6 @@ Route::post('/register', [RegisterController::class, 'store']);
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance');
 });
-
-/*--------------------勤怠---------------------*/
-
 Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
     Route::post('/attendance/break-start', [AttendanceController::class, 'breakStart'])->name('attendance.breakStart');
@@ -44,11 +39,9 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/attendance/list', [AttendanceController::class, 'adminList'])->name('admin.attendances.index');
 });
-
 
 Route::view('/admin/login', 'auth.admin-login')->name('admin.login');
 

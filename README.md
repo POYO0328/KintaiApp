@@ -4,15 +4,16 @@
 
 - Docker ビルド
   1.git clone git@github.com:POYO0328/KintaiApp.git
-  2.docker-compose up -d -buld
+  2.docker-compose up -d --build
 
 \*MySQL は、OS によって起動しない場合があるのでそれぞれの PC に合わせて docker-compose.yml ファイルを編集してください。
 
-Laravel 環境構築
+## Laravel 環境構築
 
-1. docker-composer exec php bash
+1. docker-compose exec php bash
 2. composer install
-3. envexample ファイルから.env を作成し、環境変数を変更
+3. .env.example をコピーして .env を作成し、環境変数を修正してください。
+（DB 接続情報と Mailtrap 設定を環境に合わせて修正してください）
 4. php artisan key:generate
 5. php artisan migrate
 6. php artisan db:seed
@@ -64,19 +65,23 @@ MAIL_FROM_ADDRESSは任意のメールアドレスを入力してください。
 
 ## テストコード
 1. 認証機能(一般ユーザー)　php artisan test --filter=RegisterTest
-2. ログイン機能(一般ユーザー)　
-3. ログイン機能(管理者)　
+2. ログイン機能(一般ユーザー)　※対象外
+3. ログイン機能(管理者)　※対象外
 4. 日時取得機能　※Javascriptにて日時取得しており、テスト作成不可　
 5. ステータス確認機能　php artisan test --filter=
 6. 出勤機能　php artisan test --filter=ClockInTest
 7. 休憩機能　php artisan test --filter=BreakTest
 8. 退勤機能　php artisan test --filter=ClockOutTest
-9. 勤怠一覧情報取得機能(一般ユーザー)　php artisan test --filter=
-10. 勤怠詳細情報取得機能(一般ユーザー)　php artisan test --filter=
-11. 勤怠詳細情報取得機能(一般ユーザー)　php artisan test --filter=
-12. 勤怠一覧情報取得機能(管理者)　php artisan test --filter=
-13. 勤怠詳細情報取得・修正機能(管理者)　php artisan test --filter=
-14. ユーザー情報取得機能(管理者)　php artisan test --filter=
+9. 勤怠一覧情報取得機能(一般ユーザー)　※対象外
+10. 勤怠詳細情報取得機能(一般ユーザー)　※対象外
+11. 勤怠詳細情報修正機能(一般ユーザー)　※対象外
+12. 勤怠一覧情報取得機能(管理者)　php artisan test --filter=AttendanceListTest
+13. 勤怠詳細情報取得・修正機能(管理者)　php artisan test --filter=AttendanceDetailTest
+14. ユーザー情報取得機能(管理者)　php artisan test --filter=AdminUserListTest
 15. 勤怠情報修正機能(管理者)　php artisan test --filter=PendingListTest
-16. メール認証機能
+16. メール認証機能　※対象外
 
+※テスト実行の前に、web.php内の
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
+のコメントアウトを有効にし、実行をお願いいたします。

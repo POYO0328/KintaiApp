@@ -17,7 +17,7 @@ class AttendanceFactory extends Factory
             'work_date' => now()->format('Y-m-d'),
             'clock_in' => now(),
             'clock_out' => null,
-            'attendance_status' => 1, // 出勤中
+            'attendance_status' => 1,
         ];
     }
 }

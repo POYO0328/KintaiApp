@@ -9,8 +9,8 @@ class AttendanceCorrection extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendance_corrections'; // テーブル名を明示
-
+    protected $table = 'attendance_corrections';
+    
     protected $fillable = [
         'attendance_id',
         'user_id',

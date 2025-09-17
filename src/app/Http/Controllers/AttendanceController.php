@@ -188,16 +188,6 @@ class AttendanceController extends Controller
                 $attendance->save();
             }
 
-            // // 休憩処理
-            // if ($validated['break_start'] && $validated['break_end']) {
-            //     $attendance->breaks()->updateOrCreate(
-            //         ['attendance_id' => $attendance->id],
-            //         [
-            //             'break_start' => Carbon::parse($date.' '.$validated['break_start']),
-            //             'break_end'   => Carbon::parse($date.' '.$validated['break_end']),
-            //         ]
-            //     );
-            // }
             // 休憩処理
             $attendance->breaks()->delete(); // 一旦削除して再登録
             if (!empty($validated['breaks'])) {

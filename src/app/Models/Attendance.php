@@ -9,7 +9,7 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    // Attendanceモデル例
+    // Attendanceモデル
     protected $dates = ['clock_in', 'clock_out', 'work_date'];
 
     protected $fillable = [
